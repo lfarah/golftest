@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scoreboard Creator</title>
+    <title>Criador de Placar de Golfe</title>
 
     <!-- Material Design styling -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -46,19 +46,37 @@
 </head>
 
 <body>
-    <h2>Golf Scoreboard</h2>
+    <h2>Placar de Golfe</h2>
+
+    <div class="mdc-text-field mdc-text-field--filled">
+        <span class="mdc-text-field__ripple"></span>
+        <span class="mdc-floating-label" id="label_playerID">ID do Jogador</span>
+        <input type="number" pattern="\d{4}" id="playerID" class="mdc-text-field__input" inputmode="numeric" maxlength="4">
+        <span class="mdc-line-ripple"></span>
+    </div>
+
+    <div class="mdc-text-field mdc-text-field--filled">
+        <span class="mdc-text-field__ripple"></span>
+        <span class="mdc-floating-label" id="label_playerName">Nome</span>
+        <input type="text" id="playerName" class="mdc-text-field__input">
+        <span class="mdc-line-ripple"></span>
+    </div>
 
     <div id="scoreboard">
         <div class="column" id="column1"></div>
         <div class="column" id="column2"></div>
     </div>
 
-    <h3 class="total-score">Total Score: <span id="totalScore">0</span></h3>
+    <h3 class="total-score">Pontuação Total: <span id="totalScore">0</span></h3>
 
     <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 
     <script>
         function createScoreboard() {
+            // Initialize the Player ID and Name fields with Material Design
+            mdc.textField.MDCTextField.attachTo(document.querySelector("#label_playerID").parentNode);
+            mdc.textField.MDCTextField.attachTo(document.querySelector("#label_playerName").parentNode);
+
             for (let i = 1; i <= 18; i++) {
                 let targetColumn = i <= 9 ? 'column1' : 'column2';
 
@@ -66,8 +84,8 @@
                 label.className = 'mdc-text-field mdc-text-field--filled';
                 label.innerHTML = `
                     <span class="mdc-text-field__ripple"></span>
-                    <span class="mdc-floating-label" id="label_hole_${i}">Hole ${i}</span>
-                    <input type="number" min="1" max="10" id="hole_${i}" class="mdc-text-field__input">
+                    <span class="mdc-floating-label" id="label_hole_${i}">Buraco ${i}</span>
+                    <input type="number" min="1" max="10" id="hole_${i}" class="mdc-text-field__input" inputmode="numeric">
                     <span class="mdc-line-ripple"></span>
                 `;
 
@@ -76,14 +94,18 @@
                 // Initialize the Material Design text field
                 mdc.textField.MDCTextField.attachTo(label);
 
-                // Add input listener for auto-skip and auto-update
+                // Add input listener for auto-skip, auto-update, and auto-dismiss keyboard
                 let inputField = label.querySelector('input');
                 inputField.addEventListener('input', function() {
                     if (this.value) {
-                        // Focus on the next input
-                        let nextHole = document.getElementById(`hole_${i+1}`);
-                        if (nextHole) {
-                            nextHole.focus();
+                        // Focus on the next input or blur if last input
+                        if(i === 18) {
+                            this.blur();
+                        } else {
+                            let nextHole = document.getElementById(`hole_${i+1}`);
+                            if (nextHole) {
+                                nextHole.focus();
+                            }
                         }
 
                         // Auto-calculate total
