@@ -77,15 +77,23 @@
             mdc.textField.MDCTextField.attachTo(document.querySelector("#label_playerID").parentNode);
             mdc.textField.MDCTextField.attachTo(document.querySelector("#label_playerName").parentNode);
 
+            // Auto-skip after 4 digits for player ID
+            document.getElementById('playerID').addEventListener('input', function() {
+                if (this.value.length === 4) {
+                    document.getElementById('playerName').focus();
+                }
+            });
+
             for (let i = 1; i <= 18; i++) {
                 let targetColumn = i <= 9 ? 'column1' : 'column2';
+                let delay;  // to store setTimeout reference
 
                 let label = document.createElement('label');
                 label.className = 'mdc-text-field mdc-text-field--filled';
                 label.innerHTML = `
                     <span class="mdc-text-field__ripple"></span>
                     <span class="mdc-floating-label" id="label_hole_${i}">Buraco ${i}</span>
-                    <input type="number" min="1" max="10" id="hole_${i}" class="mdc-text-field__input" inputmode="numeric">
+                    <input type="number" min="1" max="99" id="hole_${i}" class="mdc-text-field__input" inputmode="numeric">
                     <span class="mdc-line-ripple"></span>
                 `;
 
@@ -97,8 +105,10 @@
                 // Add input listener for auto-skip, auto-update, and auto-dismiss keyboard
                 let inputField = label.querySelector('input');
                 inputField.addEventListener('input', function() {
-                    if (this.value) {
-                        // Focus on the next input or blur if last input
+                    clearTimeout(delay);  // Clear any previous timeout
+
+                    // Check for single digit between 2 and 9
+                    if (this.value.length === 1 && this.value >= '2' && this.value <= '9') {
                         if(i === 18) {
                             this.blur();
                         } else {
@@ -107,9 +117,24 @@
                                 nextHole.focus();
                             }
                         }
-
                         // Auto-calculate total
                         calculateTotal();
+                    } else {
+                        delay = setTimeout(() => {
+                            if (this.value.length >= 1 || this.value == '10') {
+                                if(i === 18) {
+                                    this.blur();
+                                } else {
+                                    let nextHole = document.getElementById(`hole_${i+1}`);
+                                    if (nextHole) {
+                                        nextHole.focus();
+                                    }
+                                }
+
+                                // Auto-calculate total
+                                calculateTotal();
+                            }
+                        }, 700);  // 0.7 seconds delay
                     }
                 });
             }
